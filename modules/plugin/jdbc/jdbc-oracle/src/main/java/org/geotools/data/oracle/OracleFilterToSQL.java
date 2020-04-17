@@ -25,6 +25,7 @@ import org.geotools.data.oracle.filter.FilterFunction_sdonn;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.filter.FilterCapabilities;
 import org.geotools.filter.function.FilterFunction_area;
+import org.geotools.filter.function.FilterFunction_strToLowerCase;
 import org.geotools.filter.text.cql2.CQL;
 import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.geometry.jts.JTS;
@@ -172,6 +173,9 @@ public class OracleFilterToSQL extends PreparedFilterToSQL {
         caps.addType(EndedBy.class);
         caps.addType(TEquals.class);
 
+        // String capabilities
+        caps.addType(FilterFunction_strToLowerCase.class);
+
         return caps;
     }
 
@@ -225,6 +229,16 @@ public class OracleFilterToSQL extends PreparedFilterToSQL {
                 out.write("SDO_GEOM.SDO_AREA(");
                 s1.accept(this, String.class);
                 out.write(",0.05)");
+                return extraData;
+            } catch (IOException ioe) {
+                throw new RuntimeException(IO_ERROR, ioe);
+            }
+        } else if (function instanceof FilterFunction_strToLowerCase) {
+            try {
+                Expression s1 = getParameter(function, 0, true);
+                out.write("LOWER(");
+                s1.accept(this, String.class);
+                out.write(")");
                 return extraData;
             } catch (IOException ioe) {
                 throw new RuntimeException(IO_ERROR, ioe);
