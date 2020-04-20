@@ -16,3 +16,4 @@ workspace
 *.db
 .metadata
 .gradle
+/.vscode
